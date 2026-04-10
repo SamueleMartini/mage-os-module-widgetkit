@@ -33,7 +33,7 @@ $itemsSettings = [
     ], $params),
     'style' => $this->resolveExpression([
         'min-height: {0}; {@mageos_slideshow_height: viewport}' => '100vh',
-        'min-height: {0}; {@mageos_slideshow_height: auto}' => isset($params['mageos_slideshow_max_height']) ? $params['mageos_slideshow_max_height'] . 'px' : '',
+        'min-height: {0}; {@mageos_slideshow_height: auto}' => isset($params['mageos_slideshow_min_height']) ? $params['mageos_slideshow_min_height'] . 'px' : '',
         'max-height: {0}; overflow: hidden; {@mageos_slideshow_max_height}' => isset($params['mageos_slideshow_max_height']) ? $params['mageos_slideshow_max_height'] . 'px' : '',
         'aspect-ratio: {0}; {@mageos_slideshow_ratio}' => $params['mageos_slideshow_ratio']
     ], $params)
