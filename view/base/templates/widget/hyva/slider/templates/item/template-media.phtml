@@ -17,7 +17,7 @@ $loading = $item['count'] === 0
 
 $mobileImage = $item['mobile_image'] ?? null;
 
-$hasLink    = !empty($item['link']);
+$hasLink    = !empty($item['button_link']) && empty($item['button']);
 $linkTarget = $item['link_target'] ?? '_self';
 
 $itemTitleClasses =  [
@@ -52,6 +52,23 @@ $contentWrapperClass = match ($contentPosition) {
     default   => '',
 };
 
+$linkContainer = [
+    'class' => $this->resolveExpression([
+        '',
+    ], $params)
+];
+$link = [
+    'type' => 'a',
+    'href' => $item['button_link'],
+    'class' => $this->resolveExpression([
+        'btn btn-primary'
+    ], $params),
+    'aria-label' => $item['button'],
+    'target' => $this->resolveExpression([
+        '_blank {@button_link_target}'
+    ], $item)
+];
+
 if ($contentContainerClasses !== '') {
     $contentWrapperClass = trim($contentWrapperClass . ' ' . $contentContainerClasses);
 }
@@ -63,7 +80,7 @@ $contentFirst = in_array($contentPosition, ['left', 'top'], true);
 <div class="block">
     <?php if ($hasLink): ?>
     <a
-        href="<?= $escaper->escapeUrl($item['link']) ?>"
+        href="<?= $escaper->escapeUrl($item['button_link']) ?>"
         target="<?= $escaper->escapeHtmlAttr($linkTarget) ?>"
         class="<?= $escaper->escapeHtmlAttr($outerWrapperClass) ?>"
         <?php if ($linkTarget === '_blank'): ?>
@@ -124,6 +141,19 @@ $contentFirst = in_array($contentPosition, ['left', 'top'], true);
                 <?= $escaper->escapeHtml($item['content']); ?>
             </div>
             <?php endif; ?>
+            <?php if ($item['button_link'] && $item['button']) : ?>
+            <div class="<?= $linkContainer['class']; ?>">
+                <<?= $link['type']; ?>
+                class="<?= $link['class']; ?>"
+                <?php if ($link['type'] === 'a'): ?>
+                    href="<?= $link['href']; ?>"
+                    aria-label="<?= $link['aria-label']; ?>"
+                    target="<?= $this->resolveExpression(['_blank {@link_target}'], $item); ?>"
+                <?php endif; ?>>
+                <?=  $item['button'] ?>
+            </<?= $link['type']; ?>>
+        </div>
+    <?php endif ?>
         </div>
         <?php endif; ?>
 
