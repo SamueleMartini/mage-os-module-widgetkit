@@ -10,7 +10,6 @@ use Magento\Framework\Escaper;
 
 $params     = $this->getData('params');
 $visibility = $params['mageos_product_slider_navigation_visibility'] ?? 'show';
-$pagesize   = $params['mageos_product_slider_columns'] ?? 3;
 
 $navigationPosition = [
     'class' => $this->resolveExpression([
@@ -33,15 +32,15 @@ if ($visibility === 'hide') {
 ?>
 
 <div x-show="dotsNavigation" class="<?= $navigationPosition['class']; ?> px-2 snap-pager">
-    <?php for ($index = 0; $index < (count($this->getData('items')) / $pagesize); $index++): ?>
+    <template x-for="index in dotIndices" :key="index">
         <div
-            x-on:click="set(<?= $index ?>)"
+            x-on:click="set(index)"
             class="snap-marker cursor-pointer"
             role="tab"
-            x-bind:aria-current="currentIndex === <?= $index ?>"
+            x-bind:aria-current="currentIndex === index"
             x-cloak
         >
             <span class="sr-only"></span>
         </div>
-    <?php endfor; ?>
+    </template>
 </div>

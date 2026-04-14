@@ -82,12 +82,19 @@ $isNavBottom = !$isNavTop;
             lastSlidenavClicked: null,
             currentIndex: 0,
             pageSize: <?= $snapColumns ?>,
+            totalItems: <?= count($this->getData('items')) ?>,
+            get pageCount() {
+                return Math.ceil(this.totalItems / this.pageSize);
+            },
+            get dotIndices() {
+                return Array.from({length: this.pageCount}, (_, i) => i);
+            },
             init() {
                 this.$nextTick(() => {
                     this.calcPageSize();
                     this.slider = this.$el;
+                    const track = this.$el.querySelector('[data-track]');
                     this.$el.addEventListener('slideChange', () => {
-                        const track = this.$el.querySelector('[data-track]');
                         if (!track || !track.children.length) return;
                         const firstSlide = track.children[0];
                         if (!firstSlide || firstSlide.offsetWidth === 0) return;
@@ -104,12 +111,32 @@ $isNavBottom = !$isNavTop;
                                     lastPageIndex
                                 );
                             }
+                            this.lastSlidenavClicked = null;
                         }
                         if (this.loop) {
                             this.$el.querySelector('[data-prev]')?.removeAttribute('disabled');
                             this.$el.querySelector('[data-next]')?.removeAttribute('disabled');
                         }
                     });
+                    if (track) {
+                        let swipeActive = false;
+                        let swipeTimer;
+                        track.addEventListener('touchstart', () => { swipeActive = true; }, { passive: true });
+                        track.addEventListener('scroll', () => {
+                            if (!swipeActive) return;
+                            clearTimeout(swipeTimer);
+                            swipeTimer = setTimeout(() => {
+                                swipeActive = false;
+                                const firstSlide = track.children[0];
+                                if (!firstSlide || firstSlide.offsetWidth === 0) return;
+                                const lastPageIndex = Math.ceil(track.children.length / this.pageSize) - 1;
+                                this.currentIndex = Math.min(
+                                    Math.round(track.scrollLeft / (firstSlide.offsetWidth * this.pageSize)),
+                                    lastPageIndex
+                                );
+                            }, 150);
+                        });
+                    }
                 });
             },
             calcPageSize() {

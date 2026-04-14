@@ -17,7 +17,7 @@ $loading = $item['count'] === 0
 
 $mobileImage = $item['mobile_image'] ?? null;
 
-$hasLink    = !empty($item['link']);
+$hasLink    = !empty($item['button_link']) && empty($item['button']);
 $linkTarget = $item['link_target'] ?? '_self';
 
 $itemTitleClasses =  [
@@ -52,6 +52,23 @@ $contentWrapperClass = match ($contentPosition) {
     default   => '',
 };
 
+$linkContainer = [
+    'class' => $this->resolveExpression([
+        '',
+    ], $params)
+];
+$link = [
+    'type' => 'a',
+    'href' => $item['button_link'],
+    'class' => $this->resolveExpression([
+        'btn btn-primary'
+    ], $params),
+    'aria-label' => $item['button'],
+    'target' => $this->resolveExpression([
+        '_blank {@button_link_target}'
+    ], $item)
+];
+
 if ($contentContainerClasses !== '') {
     $contentWrapperClass = trim($contentWrapperClass . ' ' . $contentContainerClasses);
 }
@@ -63,73 +80,86 @@ $contentFirst = in_array($contentPosition, ['left', 'top'], true);
 <div class="block">
     <?php if ($hasLink): ?>
     <a
-        href="<?= $escaper->escapeUrl($item['link']) ?>"
+        href="<?= $escaper->escapeUrl($item['button_link']) ?>"
         target="<?= $escaper->escapeHtmlAttr($linkTarget) ?>"
         class="<?= $escaper->escapeHtmlAttr($outerWrapperClass) ?>"
         <?php if ($linkTarget === '_blank'): ?>
-        rel="noopener noreferrer"
+            rel="noopener noreferrer"
         <?php endif; ?>
     >
-    <?php else: ?>
-    <div class="<?= $escaper->escapeHtmlAttr($outerWrapperClass) ?>">
+        <?php else: ?>
+        <div class="<?= $escaper->escapeHtmlAttr($outerWrapperClass) ?>">
+            <?php endif; ?>
+
+            <?php if ($contentFirst && $hasContent): ?>
+                <div class="w-full <?= $escaper->escapeHtmlAttr($contentWrapperClass); ?>">
+                    <?php if (!empty($item['title'])): ?>
+                        <div class="<?= $itemTitleClasses['class']; ?>">
+                            <?= $escaper->escapeHtml($item['title']); ?>
+                        </div>
+                    <?php endif; ?>
+                    <?php if (!empty($item['content'])): ?>
+                        <div class="<?= $itemContentClasses['class']; ?>">
+                            <?= $escaper->escapeHtml($item['content']); ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+
+            <picture class="block w-full">
+                <?php if ($mobileImage): ?>
+                    <source
+                        media="(max-width: 768px)"
+                        srcset="<?= $escaper->escapeHtmlAttr($mobileImage) ?>"
+                        type="image/jpeg"
+                    />
+                <?php endif; ?>
+                <img
+                    src="<?= $escaper->escapeUrl($item['image']) ?>"
+                    alt="<?= $escaper->escapeHtmlAttr($item['image_alt'] ?? '') ?>"
+                    class="w-full h-auto object-cover"
+                    <?php if ($loading === 'eager'): ?>
+                        loading="eager"
+                        fetchpriority="high"
+                    <?php else: ?>
+                        loading="lazy"
+                    <?php endif; ?>
+                    role="group"
+                    aria-roledescription="slide"
+                />
+            </picture>
+
+            <?php if (!$contentFirst && $hasContent): ?>
+            <div class="w-full <?= $escaper->escapeHtmlAttr($contentWrapperClass); ?>">
+                <?php if (!empty($item['title'])): ?>
+                    <div class="<?= $itemTitleClasses['class']; ?>">
+                        <?= $escaper->escapeHtml($item['title']); ?>
+                    </div>
+                <?php endif; ?>
+                <?php if (!empty($item['content'])): ?>
+                    <div class="<?= $itemContentClasses['class']; ?>">
+                        <?= $escaper->escapeHtml($item['content']); ?>
+                    </div>
+                <?php endif; ?>
+                <?php if ($item['button_link'] && $item['button']) : ?>
+                <div class="<?= $linkContainer['class']; ?>">
+                    <<?= $link['type']; ?>
+                    class="<?= $link['class']; ?>"
+                    <?php if ($link['type'] === 'a'): ?>
+                        href="<?= $link['href']; ?>"
+                        aria-label="<?= $link['aria-label']; ?>"
+                        target="<?= $this->resolveExpression(['_blank {@link_target}'], $item); ?>"
+                    <?php endif; ?>>
+                    <?=  $item['button'] ?>
+                </<?= $link['type']; ?>>
+            </div>
+        <?php endif ?>
+        </div>
     <?php endif; ?>
 
-        <?php if ($contentFirst && $hasContent): ?>
-        <div class="w-full <?= $escaper->escapeHtmlAttr($contentWrapperClass); ?>">
-            <?php if (!empty($item['title'])): ?>
-            <div class="<?= $itemTitleClasses['class']; ?>">
-                <?= $escaper->escapeHtml($item['title']); ?>
-            </div>
-            <?php endif; ?>
-            <?php if (!empty($item['content'])): ?>
-            <div class="<?= $itemContentClasses['class']; ?>">
-                <?= $escaper->escapeHtml($item['content']); ?>
-            </div>
-            <?php endif; ?>
-        </div>
-        <?php endif; ?>
-
-        <picture class="block w-full">
-            <?php if ($mobileImage): ?>
-            <source
-                media="(max-width: 768px)"
-                srcset="<?= $escaper->escapeHtmlAttr($mobileImage) ?>"
-                type="image/jpeg"
-            />
-            <?php endif; ?>
-            <img
-                src="<?= $escaper->escapeUrl($item['image']) ?>"
-                alt="<?= $escaper->escapeHtmlAttr($item['image_alt'] ?? '') ?>"
-                class="w-full h-auto object-cover"
-                <?php if ($loading === 'eager'): ?>
-                loading="eager"
-                fetchpriority="high"
-                <?php else: ?>
-                loading="lazy"
-                <?php endif; ?>
-                role="group"
-                aria-roledescription="slide"
-            />
-        </picture>
-
-        <?php if (!$contentFirst && $hasContent): ?>
-        <div class="w-full <?= $escaper->escapeHtmlAttr($contentWrapperClass); ?>">
-            <?php if (!empty($item['title'])): ?>
-            <div class="<?= $itemTitleClasses['class']; ?>">
-                <?= $escaper->escapeHtml($item['title']); ?>
-            </div>
-            <?php endif; ?>
-            <?php if (!empty($item['content'])): ?>
-            <div class="<?= $itemContentClasses['class']; ?>">
-                <?= $escaper->escapeHtml($item['content']); ?>
-            </div>
-            <?php endif; ?>
-        </div>
-        <?php endif; ?>
-
-    <?php if ($hasLink): ?>
+        <?php if ($hasLink): ?>
     </a>
     <?php else: ?>
-    </div>
-    <?php endif; ?>
+</div>
+<?php endif; ?>
 </div>
