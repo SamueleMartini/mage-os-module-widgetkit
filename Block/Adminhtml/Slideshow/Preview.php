@@ -22,7 +22,7 @@ class Preview extends Slideshow
         protected Context $context
     )
     {
-        return parent::__construct(
+        parent::__construct(
             $conditions,
             $context
         );

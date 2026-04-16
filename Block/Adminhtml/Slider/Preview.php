@@ -21,7 +21,7 @@ class Preview extends Slider
         protected Conditions $conditions,
         protected Context $context
     ) {
-        return parent::__construct(
+        parent::__construct(
             $conditions,
             $context
         );

@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 1.4.5
+### Fixed
+- Fix null dereference on product loading in ProductWidget
+- Remove invalid return statement from constructors in Slider/Preview and Slideshow/Preview
+- Change readonly private to protected readonly in RegisterModuleForHyvaConfig
+
 ## 1.4.4
 ### Updated
 - Fix dotnav for slider/product-slider widgets on mobile

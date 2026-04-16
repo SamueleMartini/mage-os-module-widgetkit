@@ -20,7 +20,7 @@ use Magento\Review\Model\AppendSummaryDataFactory;
 
 class ProductWidget extends Template implements BlockInterface
 {
-    private ?LayoutInterface $productItemLayout = null;
+    protected ?LayoutInterface $productItemLayout = null;
 
     public function __construct(
         protected State $state,
@@ -155,10 +155,10 @@ class ProductWidget extends Template implements BlockInterface
             }
             $product = $productsById[(int)$rawItem['product']] ?? null;
             unset($rawItem['product']);
-            foreach ($rawItem as $key => $data) {
-                $product->setData($key, $data);
-            }
             if ($product) {
+                foreach ($rawItem as $key => $data) {
+                    $product->setData($key, $data);
+                }
                 $products[] = $product;
             }
         }
